@@ -6,14 +6,17 @@ module Hyrax
       self.form_class = Hyrax::Forms::Dashboard::NestCollectionForm
       self.new_collection_form_class = Hyrax::Forms::CollectionForm
 
+      # TODO: fix where notices and errors are swallowed by javascript
       # Add this collection as a subcollection within another existing collection
       def create_relationship_within
         @form = build_within_form
         if @form.save
           notice = I18n.t('create_within', scope: 'hyrax.dashboard.nest_collections_form', child_title: @form.child.title.first, parent_title: @form.parent.title.first)
-          redirect_to redirect_path(item: @form.child), notice: notice
+          require 'byebug'; debugger; true
+          redirect_to redirect_path(item: @form.child), flash: { notice: notice }
         else
-          redirect_to redirect_path(item: @form.child), error: @form.errors.full_messages
+          require 'byebug'; debugger; true
+          redirect_to redirect_path(item: @form.child), flash: { error: @form.errors.full_messages }
         end
       end
 
@@ -23,18 +26,21 @@ module Hyrax
         if @form.validate_add
           redirect_to new_dashboard_collection_path(collection_type_id: @form.parent.collection_type.id, parent_id: @form.parent)
         else
-          redirect_to redirect_path(item: @form.parent), error: @form.errors.full_messages
+          redirect_to redirect_path(item: @form.parent), flash: { error: @form.errors.full_messages }
         end
       end
 
+      # TODO: fix where notices and errors are swallowed by javascript
       # link this collection as parent by adding existing collection as subcollection under this one
       def create_relationship_under
         @form = build_under_form
         if @form.save
           notice = I18n.t('create_under', scope: 'hyrax.dashboard.nest_collections_form', child_title: @form.child.title.first, parent_title: @form.parent.title.first)
-          redirect_to redirect_path(item: @form.parent), notice: notice
+          require 'byebug'; debugger; true
+          redirect_to redirect_path(item: @form.parent), flash: { notice: notice }
         else
-          redirect_to redirect_path(item: @form.parent), error: @form.errors.full_messages
+          require 'byebug'; debugger; true
+          redirect_to redirect_path(item: @form.parent), flash: { error: @form.errors.full_messages }
         end
       end
 
