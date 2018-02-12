@@ -13,29 +13,39 @@ RSpec.describe WorkViewStat, type: :model do
     expect(work_stat.date).to eq(date)
     expect(work_stat.work_views).to eq(25)
     expect(work_stat.user_id).to eq(user_id)
+    expect(work_stat.work_id).to eq("199")
+  end
+
+  it 'has the correct dimension terms' do
+    expect(described_class.dimension_terms).to be == ['date']
+  end
+
+  it 'has the correct metric terms' do
+    expect(described_class.metric_terms).to be == ['pageviews']
+  end
+
+  it 'has the correct filters parameter' do
+    expect(described_class.filters(work)).to be == 'ga:pagePath=~' + Rails.application.routes.url_helpers.polymorphic_path(work)
   end
 
   describe ".ga_statistic" do
     let(:start_date) { 2.days.ago }
-    let(:expected_path) { Rails.application.routes.url_helpers.hyrax_generic_work_path(work) }
+    let(:reporting_service) { double }
 
     before do
-      allow(Hyrax::Analytics).to receive(:profile).and_return(profile)
+      allow(Hyrax::Analytics).to receive(:profile).and_return([reporting_service], 'XXXXXXXXX')
     end
-    context "when a profile is available" do
-      let(:views) { double }
-      let(:profile) { double(hyrax__pageview: views) }
 
-      it "calls the Legato method with the correct path" do
-        expect(views).to receive(:for_path).with(expected_path)
+    context "when a profile is available" do
+      it "calls the reporting service" do
+        expect(reporting_service).to receive(:batch_get_reports)
         described_class.ga_statistics(start_date, work)
       end
     end
 
     context "when a profile not available" do
-      let(:profile) { nil }
-
-      it "calls the Legato method with the correct path" do
+      it "returns an empty array" do
+        allow(reporting_service).to receive(:batch_get_reports)
         expect(described_class.ga_statistics(start_date, work)).to be_empty
       end
     end
@@ -55,11 +65,11 @@ RSpec.describe WorkViewStat, type: :model do
       [[statistic_date(dates[0]), 4], [statistic_date(dates[1]), 8], [statistic_date(dates[2]), 6], [statistic_date(dates[3]), 10]]
     end
 
-    # This is what the data looks like that's returned from Google Analytics (GA) via the Legato gem
+    # This is what the data looks like that's returned from Google Analytics (GA) via ga_statistics
     # Due to the nature of querying GA, testing this data in an automated fashion is problematc.
     # Sample data structures were created by sending real events to GA from a test instance of
-    # Scholarsphere.  The data below are essentially a "cut and paste" from the output of query
-    # results from the Legato gem.
+    # Scholarsphere.  The data below are essentially a "cut and paste" of query output.
+
     let(:sample_work_pageview_statistics) do
       [
         SpecStatistic.new(date: date_strs[0], pageviews: 4),

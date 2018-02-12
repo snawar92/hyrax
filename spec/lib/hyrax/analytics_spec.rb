@@ -12,11 +12,8 @@ RSpec.describe Hyrax::Analytics do
       end
 
       it 'reads its config from a yaml file' do
-        expect(config.app_name).to eql 'My App Name'
-        expect(config.app_version).to eql '0.0.1'
-        expect(config.privkey_path).to eql '/tmp/privkey.p12'
-        expect(config.privkey_secret).to eql 's00pers3kr1t'
-        expect(config.client_email).to eql 'oauth@example.org'
+        expect(config.view_id).to eql 'XXXXXXXXX'
+        expect(config.privkey_path).to eql '/tmp/privkey.json'
       end
     end
 
@@ -33,22 +30,12 @@ RSpec.describe Hyrax::Analytics do
     end
   end
 
-  describe "#user" do
-    before do
-      token = OAuth2::AccessToken.new(nil, nil)
-      allow(subject).to receive(:token).and_return(token)
-    end
-    it 'instantiates a user' do
-      expect(subject.send(:user)).to be_a(Legato::User)
-    end
-  end
-
   describe "#profile" do
     subject { described_class.profile }
 
     context "when the private key file is missing" do
       it "raises an error" do
-        expect { subject }.to raise_error RuntimeError, "Private key file for Google analytics was expected at '/tmp/privkey.p12', but no file was found."
+        expect { subject }.to raise_error RuntimeError, "Private key file for Google Analytics was expected at '/tmp/privkey.json', but no file was found."
       end
     end
 

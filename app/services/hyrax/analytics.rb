@@ -1,15 +1,9 @@
-require 'oauth2'
-require 'signet/oauth_2/client'
-
 module Hyrax
   module Analytics
     # Loads configuration options from config/analytics.yml. Expected structure:
     # `analytics:`
-    # `  app_name: GOOGLE_OAUTH_APP_NAME`
-    # `  app_version: GOOGLE_OAUTH_APP_VERSION`
-    # `  privkey_path: GOOGLE_OAUTH_PRIVATE_KEY_PATH`
-    # `  privkey_secret: GOOGLE_OAUTH_PRIVATE_KEY_SECRET`
-    # `  client_email: GOOGLE_OAUTH_CLIENT_EMAIL`
+    # `  view_id: 'XXXXXXXXX'`
+    # `  privkey_path: /path/to/key_file.json`
     # @return [Config]
     def self.config
       @config ||= Config.load_from_yaml
@@ -27,7 +21,7 @@ module Hyrax
         new yaml.fetch('analytics')
       end
 
-      REQUIRED_KEYS = %w[app_name app_version privkey_path privkey_secret client_email].freeze
+      REQUIRED_KEYS = %w[privkey_path view_id].freeze
 
       def initialize(config)
         @config = config
@@ -44,47 +38,17 @@ module Hyrax
       end
     end
 
-    # Generate an OAuth2 token for Google Analytics
-    # @return [OAuth2::AccessToken] An OAuth2 access token for GA
-    def self.token(scope = 'https://www.googleapis.com/auth/analytics.readonly')
-      access_token = auth_client(scope).fetch_access_token!
-      OAuth2::AccessToken.new(oauth_client, access_token['access_token'], expires_in: access_token['expires_in'])
-    end
-
-    def self.oauth_client
-      OAuth2::Client.new('', '', authorize_url: 'https://accounts.google.com/o/oauth2/auth',
-                                 token_url: 'https://accounts.google.com/o/oauth2/token')
-    end
-
-    def self.auth_client(scope)
-      unless File.exist?(config.privkey_path)
-        raise "Private key file for Google analytics was expected at '#{config.privkey_path}', but no file was found."
-      end
-      private_key = File.read(config.privkey_path)
-      Signet::OAuth2::Client.new token_credential_uri: 'https://accounts.google.com/o/oauth2/token',
-                                 audience: 'https://accounts.google.com/o/oauth2/token',
-                                 scope: scope,
-                                 issuer: config.client_email,
-                                 signing_key: OpenSSL::PKCS12.new(private_key, config.privkey_secret).key,
-                                 sub: config.client_email
-    end
-
-    private_class_method :token
-
-    # Return a user object linked to a Google Analytics account
-    # @return [Legato::User] A user account wit GA access
-    def self.user
-      Legato::User.new(token)
-    end
-    private_class_method :user
-
-    # Return a Google Analytics profile matching specified ID
-    # @ return [Legato::Management::Profile] A user profile associated with GA
+    # Return a Google Analytics Reporting Service
     def self.profile
       return unless config.valid?
-      user.profiles.detect do |profile|
-        profile.web_property_id == Hyrax.config.google_analytics_id
+      unless File.exist?(config.privkey_path)
+        raise "Private key file for Google Analytics was expected at '#{config.privkey_path}', but no file was found."
       end
+      analytics = Google::Apis::AnalyticsreportingV4::AnalyticsReportingService.new
+      credentials = Google::Auth::ServiceAccountCredentials.make_creds(json_key_io: File.open(config.privkey_path))
+      credentials.scope = 'https://www.googleapis.com/auth/analytics.readonly'
+      analytics.authorization = credentials.fetch_access_token!({})["access_token"]
+      [analytics, 'ga:' + config.view_id.to_s]
     end
   end
 end

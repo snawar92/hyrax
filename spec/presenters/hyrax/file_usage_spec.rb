@@ -23,11 +23,10 @@ RSpec.describe Hyrax::FileUsage, type: :model do
     [[statistic_date(dates[0]), 1], [statistic_date(dates[1]), 1], [statistic_date(dates[2]), 2], [statistic_date(dates[3]), 3], [statistic_date(dates[4]), 5]]
   end
 
-  # This is what the data looks like that's returned from Google Analytics (GA) via the Legato gem
+  # This is what the data looks like that's returned from Google Analytics (GA) via ga_statistics
   # Due to the nature of querying GA, testing this data in an automated fashion is problematc.
   # Sample data structures were created by sending real events to GA from a test instance of
-  # Scholarsphere.  The data below are essentially a "cut and paste" from the output of query
-  # results from the Legato gem.
+  # Scholarsphere.  The data below are essentially a "cut and paste" of query output.
 
   let(:sample_download_statistics) do
     [

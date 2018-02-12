@@ -3,18 +3,16 @@ class FileDownloadStat < Hyrax::Statistic
   self.event_type = :totalEvents
 
   class << self
-    # Hyrax::Download is sent to Hyrax::Analytics.profile as #hyrax__download
-    # see Legato::ProfileMethods.method_name_from_klass
-    def ga_statistics(start_date, file)
-      profile = Hyrax::Analytics.profile
-      unless profile
-        Rails.logger.error("Google Analytics profile has not been established. Unable to fetch statistics.")
-        return []
-      end
-      profile.hyrax__download(sort: 'date',
-                              start_date: start_date,
-                              end_date: Date.yesterday)
-             .for_file(file.id)
+    def dimension_terms
+      ['eventCategory', 'eventAction', 'eventLabel', 'date']
+    end
+
+    def metric_terms
+      ['pageviews']
+    end
+
+    def filters(object)
+      'ga:eventLabel==' + object.id.to_s
     end
 
     # this is called by the parent class

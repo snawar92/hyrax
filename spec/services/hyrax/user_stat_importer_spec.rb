@@ -77,7 +77,7 @@ RSpec.describe Hyrax::UserStatImporter do
     ldate_strs
   end
 
-  # This is what the data looks like that's returned from Google Analytics via the Legato gem.
+  # This is what the data looks like that's returned from Google Analytics via ga_statistics
   let(:bilbo_file_1_pageview_stats) do
     [
       SpecStatistic.new(date: date_strs[0], pageviews: 1),

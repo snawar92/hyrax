@@ -12,14 +12,7 @@ module Hyrax
     require 'flipflop'
     require 'qa'
     require 'clipboard/rails'
-    require 'legato'
     require 'pul_uv_rails'
-
-    # Force these models to be added to Legato's registry in development mode
-    config.eager_load_paths += %W[
-      #{config.root}/app/models/hyrax/download.rb
-      #{config.root}/app/models/hyrax/pageview.rb
-    ]
 
     config.action_dispatch.rescue_responses.merge!(
       "ActiveFedora::ObjectNotFoundError" =>     :not_found, # We can remove this when we use ActiveFedora 11.2

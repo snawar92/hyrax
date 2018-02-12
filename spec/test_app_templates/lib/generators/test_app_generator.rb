@@ -76,11 +76,8 @@ class TestAppGenerator < Rails::Generators::Base
     append_file 'config/analytics.yml' do
       <<-EOS.strip_heredoc
         analytics:
-          app_name: My App Name
-          app_version: 0.0.1
-          privkey_path: /tmp/privkey.p12
-          privkey_secret: s00pers3kr1t
-          client_email: oauth@example.org
+          view_id: XXXXXXXXX
+          privkey_path: /tmp/privkey.json
       EOS
     end
   end
