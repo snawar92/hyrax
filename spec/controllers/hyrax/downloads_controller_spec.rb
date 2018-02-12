@@ -21,14 +21,18 @@ RSpec.describe Hyrax::DownloadsController do
 
       it 'redirects to the default image' do
         get :show, params: { id: file_set.to_param }
-        expect(response).to redirect_to default_image
+        expect(response).to have_http_status(:unauthorized)
+        expect(response).not_to redirect_to default_image
+        expect(response.body).to eq I18n.t('hyrax.api.unauthorized.default')
       end
     end
 
     context "when user isn't logged in" do
       it 'redirects to the default image' do
         get :show, params: { id: file_set.to_param }
-        expect(response).to redirect_to default_image
+        expect(response).to have_http_status(:unauthorized)
+        expect(response).not_to redirect_to default_image
+        expect(response.body).to eq I18n.t('hyrax.api.unauthorized.default')
       end
 
       it 'authorizes the resource using only the id' do

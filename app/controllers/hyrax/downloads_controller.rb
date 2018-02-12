@@ -43,7 +43,7 @@ module Hyrax
       def authorize_download!
         authorize! :download, params[asset_param_key]
       rescue CanCan::AccessDenied
-        redirect_to default_image
+        return render plain: I18n.t('hyrax.api.unauthorized.default'), status: :unauthorized
       end
 
       def default_image

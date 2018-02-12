@@ -25,7 +25,6 @@ RSpec.describe 'IIIF image API', type: :request do
       it "returns an image" do
         get Riiif::Engine.routes.url_helpers.image_path(file.id, size: size)
         expect(response).to have_http_status(:unauthorized)
-        expect(response.content_type).to eq 'image/jpeg'
       end
     end
   end
