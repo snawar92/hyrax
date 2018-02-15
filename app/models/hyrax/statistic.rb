@@ -67,8 +67,7 @@ module Hyrax
                                                 metrics: metrics,
                                                 date_ranges: date_ranges,
                                                 sort: 'ga:date',
-                                                filters_expression: filters(object),
-                                                include_empty_rows: true)]
+                                                filters_expression: filters(object))]
           )
         end
 
